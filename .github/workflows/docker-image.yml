@@ -18,25 +18,43 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Docker login
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_USER }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: |
-        echo "Iniciando login"
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-        echo "Login realizado con exito"
+    - name: Git Semantic Version
+      uses: PaulHatch/semantic-version@v4.0.3
+      with:
+        major_pattern: 'major'
+        minor_pattern: 'feat:'
+        format: "$(major).$(minor).$(patch)-prerealese$(increment)"
+      id: version
 
     - name: Build the Docker image
       run: |
         echo "Building the Docker image"
         docker build -t nazitaog/docker-graphql:0.0.2 .
-      
-    - name: Push the Docker image
+        docker build -t nazitaog/docker-graphql:latest .
+        
+    - name: Docker login
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        NEW_VERSION: ${{ steps.version.outputs.version }}
       run: |
-        echo "Pushing the Docker image"
-        docker push nazitaog/docker-graphql:0.0.2
-        echo "Push realizado con exito"
+        echo "Iniciando login"
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        echo "Login realizado con exito"
+        echo "Nueva version: $NEW_VERSION"
+
+    # - name: Build the Docker image
+    #   run: |
+    #     echo "Building the Docker image"
+    #     docker build -t nazitaog/docker-graphql:0.0.2 .
+    #     docker build -t nazitaog/docker-graphql:latest .
+      
+    # - name: Push the Docker image
+    #   run: |
+    #     echo "Pushing the Docker image"
+    #     docker push nazitaog/docker-graphql:0.0.2
+    #     docker push nazitaog/docker-graphql:latest
+    #     echo "Push realizado con exito"
 
     # - name: Build the Docker image
     #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
