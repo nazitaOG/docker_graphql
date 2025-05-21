@@ -23,15 +23,9 @@ jobs:
       with:
         major_pattern: 'major'
         minor_pattern: 'feat:'
-        format: "$(major).$(minor).$(patch)-prerealese$(increment)"
+        format: "${major}.${minor}.${patch}-prerelease${increment}"
       id: version
 
-    - name: Build the Docker image
-      run: |
-        echo "Building the Docker image"
-        docker build -t nazitaog/docker-graphql:0.0.2 .
-        docker build -t nazitaog/docker-graphql:latest .
-        
     - name: Docker login
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
